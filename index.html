@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hands of Hope Conversion Report</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  body { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  .pill-active { background:#0f766e !important; color:#fff !important; border-color:#0f766e !important; }
+  .tab-active { background:#fff !important; color:#0f172a !important; box-shadow:0 1px 2px rgba(0,0,0,.08); }
+  .dz-hover { border-color:#0d9488 !important; background:#f0fdfa !important; }
+  .fade-in { animation:fi .25s ease; } @keyframes fi { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+  .delta-up { color:#059669; } .delta-down { color:#dc2626; }
+  ::-webkit-scrollbar{height:6px;width:6px} ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+</style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800">
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+  <!-- ============ HEADER ============ -->
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-5 mb-5">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-teal-700 flex items-center justify-center text-white font-bold text-lg" aria-hidden="true">H</div>
+          <div>
+            <h1 class="text-xl font-bold text-slate-900 leading-tight">Hands of Hope Conversion Report</h1>
+            <p class="text-sm text-slate-500">ZocDoc (Organic &amp; Sponsored) · Website · Google Ads · Inbound Calls — monthly bookings, conversions &amp; acquisition cost</p>
+          </div>
+        </div>
+        <p id="dateRange" class="text-xs text-slate-400 mt-2 ml-13 pl-0.5"></p>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1.5">
+          <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span> Live in-browser · No data leaves this device
+        </span>
+        <button id="btnUpload" class="inline-flex items-center gap-2 text-sm font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg px-4 py-2 transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+          Upload Excel
+        </button>
+        <button id="btnExport" class="hidden inline-flex items-center gap-2 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 transition-colors" title="Download a copy of this dashboard with the current data built in — redeploy it so everyone sees this data without uploading">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+          Save with data
+        </button>
+        <button id="btnAskAI" class="inline-flex items-center gap-2 text-sm font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg px-4 py-2 transition-colors" disabled>
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
+          Ask AI
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ DROP ZONE ============ -->
+  <div id="dropzone" class="border-2 border-dashed border-slate-300 rounded-2xl bg-white p-12 text-center cursor-pointer transition-colors mb-5" role="button" tabindex="0" aria-label="Upload Excel workbook. Drag and drop or press Enter to browse.">
+    <svg class="mx-auto h-12 w-12 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+    <p class="mt-3 font-semibold text-slate-700">Drop “Conversions per month (New Px)” workbook here</p>
+    <p class="text-sm text-slate-400 mt-1">.xlsx / .xls — parsed instantly &amp; locally in your browser</p>
+    <p id="fileStatus" class="text-sm mt-3 font-medium text-teal-700 hidden"></p>
+    <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden" aria-hidden="true">
+  </div>
+  <p id="errorBox" class="hidden mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3" role="alert"></p>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="dashboard" class="hidden fade-in">
+
+    <!-- Timeline -->
+    <div class="flex flex-wrap items-center gap-2 mb-5">
+      <nav id="timeline" class="flex flex-wrap gap-2" aria-label="Select report month"></nav>
+      <div class="relative ml-auto">
+        <button id="btnCompare" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-full px-4 py-1.5 hover:border-teal-500 hover:text-teal-700 transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+          <span id="compareLabel">Compare</span>
+        </button>
+        <div id="compareMenu" class="hidden absolute right-0 mt-2 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1 max-h-64 overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <!-- KPI cards -->
+    <section aria-live="polite" class="mb-6">
+      <div id="kpiRow" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3"></div>
+    </section>
+
+    <!-- Trend -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6">
+      <h2 class="text-base font-semibold text-slate-900 mb-3">Bookings &amp; Conversions Trend</h2>
+      <div class="relative h-64"><canvas id="trendChart" role="img" aria-label="Line chart of bookings and conversions by month"></canvas></div>
+    </section>
+
+    <!-- Source Performance Breakdown -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6">
+      <div class="flex items-baseline justify-between mb-4 flex-wrap gap-2">
+        <h2 class="text-base font-semibold text-slate-900">Source Performance Breakdown <span id="srcMonth" class="text-slate-400 font-normal"></span></h2>
+        <p class="text-xs text-slate-400">Share bars = % of total bookings across sources</p>
+      </div>
+      <div id="sourceList" class="divide-y divide-slate-100"></div>
+    </section>
+
+    <!-- Analyst Comments -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6">
+      <div class="flex items-baseline justify-between mb-1 flex-wrap gap-2">
+        <h2 class="text-base font-semibold text-slate-900">Analyst Comments <span id="cmtMonth" class="text-slate-400 font-normal"></span></h2>
+        <label class="text-xs text-slate-500 flex items-center gap-1.5 cursor-pointer select-none">
+          <input type="checkbox" id="cmtAll" class="accent-teal-700"> show all months
+        </label>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">Threaded comments pulled from the Excel workbook</p>
+      <div id="commentList" class="space-y-2.5 max-h-72 overflow-y-auto pr-1"></div>
+    </section>
+
+    <div class="grid lg:grid-cols-5 gap-6">
+      <!-- Channel breakdown -->
+      <section class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-base font-semibold text-slate-900">Channel Breakdown <span id="chanMonth" class="text-slate-400 font-normal"></span></h2>
+          <div class="flex bg-slate-100 rounded-lg p-1" role="tablist" aria-label="Channel metric">
+            <button data-tab="bookings" role="tab" class="chan-tab tab-active text-xs font-semibold px-3 py-1.5 rounded-md text-slate-500">Bookings</button>
+            <button data-tab="rate" role="tab" class="chan-tab text-xs font-semibold px-3 py-1.5 rounded-md text-slate-500">Conv. Rate</button>
+            <button data-tab="cac" role="tab" class="chan-tab text-xs font-semibold px-3 py-1.5 rounded-md text-slate-500">CAC $</button>
+          </div>
+        </div>
+        <div id="channelList" class="space-y-3"></div>
+      </section>
+
+      <!-- Location breakdown -->
+      <section class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <h2 class="text-base font-semibold text-slate-900 mb-1">Location Breakdown <span id="locMonth" class="text-slate-400 font-normal"></span></h2>
+        <p class="text-xs text-slate-400 mb-4">ZocDoc bookings per clinic location</p>
+        <div id="locationGrid" class="grid grid-cols-2 gap-2.5 max-h-[480px] overflow-y-auto pr-1"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ASK AI DRAWER ============ -->
+<div id="aiOverlay" class="hidden fixed inset-0 z-40 bg-slate-900/30"></div>
+<div id="aiDrawer" class="fixed inset-y-0 right-0 z-50 w-full sm:w-[460px] bg-white shadow-2xl border-l border-slate-200 flex flex-col transform translate-x-full transition-transform duration-300 ease-out" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+
+  <!-- Drawer header -->
+  <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
+    <div>
+      <h3 id="aiTitle" class="text-base font-bold text-slate-900">AI Analyst</h3>
+      <p id="aiMode" class="text-[11px] text-slate-400"></p>
+    </div>
+    <div class="flex items-center gap-1">
+      <button id="aiSettingsBtn" class="p-2 rounded-lg text-slate-400 hover:text-teal-700 hover:bg-slate-50" aria-label="API key settings" title="API key settings">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
+      </button>
+      <button id="aiClose" class="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 text-xl leading-none" aria-label="Close">&times;</button>
+    </div>
+  </div>
+
+  <!-- Settings panel -->
+  <div id="aiSettings" class="hidden px-5 py-4 border-b border-slate-100 bg-slate-50 shrink-0">
+    <p class="text-xs font-semibold text-slate-700 mb-2">Bring Your Own Key (optional)</p>
+    <div class="flex gap-2 mb-2">
+      <select id="aiProvider" class="text-sm border border-slate-300 rounded-lg px-2 py-1.5 bg-white text-slate-700">
+        <option value="anthropic">Anthropic</option>
+        <option value="openai">OpenAI</option>
+      </select>
+      <input id="aiKey" type="password" placeholder="sk-… API key" class="flex-1 text-sm border border-slate-300 rounded-lg px-3 py-1.5" autocomplete="off">
+    </div>
+    <div class="flex gap-2">
+      <button id="aiKeySave" class="text-xs font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg px-3 py-1.5">Save key</button>
+      <button id="aiKeyClear" class="text-xs font-semibold text-slate-500 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg px-3 py-1.5">Clear</button>
+    </div>
+    <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">Key is stored only in this browser's localStorage and sent only to your chosen provider. Prompts include <b>aggregate monthly metrics only</b> — never patient-level data (PHI).</p>
+  </div>
+
+  <!-- Messages -->
+  <div id="aiMessages" class="flex-1 overflow-y-auto px-5 py-4 space-y-3"></div>
+
+  <!-- Input -->
+  <div class="px-5 py-4 border-t border-slate-100 shrink-0">
+    <form id="aiForm" class="flex gap-2">
+      <input id="aiInput" type="text" placeholder="Add an API key to enable chat…" disabled
+        class="flex-1 text-sm border border-slate-300 rounded-xl px-4 py-2.5 disabled:bg-slate-50 disabled:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" autocomplete="off">
+      <button id="aiSend" type="submit" disabled class="shrink-0 rounded-xl bg-teal-700 hover:bg-teal-800 disabled:bg-slate-200 disabled:text-slate-400 text-white px-4 py-2.5" aria-label="Send">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+      </button>
+    </form>
+    <p class="text-[10px] text-slate-400 mt-2">Insights are computed in-browser. Chat (BYOK) sends only aggregate metrics to your provider.</p>
+  </div>
+</div>
+
+<script>
+/*EMBEDDED-DATA-START*/
+window.EMBEDDED_DATA = {"months":[{"monthIdx":7,"year":2025,"label":"Aug 2025","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":145,"converted":88,"rate":0.73,"cac":64},"zocSponsored":{"name":"ZocDoc Sponsored","total":241,"converted":131,"rate":0.64,"cac":247},"zocMeta":{"totalRequests":408,"totalConverted":283,"totalRate":0.694,"newPxConverted":238,"newPxRate":0.69,"spend":37997,"combinedCAC":159.65126050420167},"website":{"name":"Website","total":66,"converted":41,"rate":0.62,"cac":null},"googleAds":{"name":"Google Ads","total":25,"converted":16,"rate":0.64,"cac":143,"budget":2295}},"kpis":{"totalBookings":499,"totalConversions":340,"overallCAC":118.50588235294117,"newPxConverted":238,"newPxRate":0.69,"totalSpend":40292,"blendedCAC":136.58305084745763},"locations":null,"comments":[]},{"monthIdx":8,"year":2025,"label":"Sep 2025","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":210,"converted":139,"rate":0.7722,"cac":68.8},"zocSponsored":{"name":"ZocDoc Sponsored","total":254,"converted":146,"rate":0.655,"cac":247},"zocMeta":{"totalRequests":469,"totalConverted":333,"totalRate":0.71,"newPxConverted":283,"newPxRate":0.702,"spend":43702,"combinedCAC":154.42402826855124},"website":{"name":"Website","total":54,"converted":30,"rate":0.555,"cac":null},"quiz":{"name":"Website Quiz","total":49,"converted":27,"rate":0.55,"cac":null},"googleAds":{"name":"Google Ads","total":8,"converted":4,"rate":0.5,"cac":177,"budget":709}},"kpis":{"totalBookings":580,"totalConversions":394,"overallCAC":112.71827411167513,"newPxConverted":283,"newPxRate":0.702,"totalSpend":44411,"blendedCAC":140.09779179810727},"locations":null,"comments":[]},{"monthIdx":9,"year":2025,"label":"Oct 2025","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":125,"converted":93,"rate":0.74,"cac":62.2},"zocSponsored":{"name":"ZocDoc Sponsored","total":210,"converted":127,"rate":0.605,"cac":239},"zocMeta":{"totalRequests":427,"totalConverted":null,"totalRate":null,"newPxConverted":239,"newPxRate":0.65,"spend":39320,"combinedCAC":164.51882845188285},"website":{"name":"Website","total":73,"converted":42,"rate":0.575,"cac":null},"quiz":{"name":"Website Quiz","total":58,"converted":16,"rate":0.276,"cac":null},"googleAds":{"name":"Google Ads","total":16,"converted":8,"rate":0.88,"cac":166,"budget":1328}},"kpis":{"totalBookings":574,"totalConversions":66,"overallCAC":615.8787878787879,"newPxConverted":239,"newPxRate":0.65,"totalSpend":40648,"blendedCAC":140.65051903114187},"locations":null,"comments":[{"ref":"F1","author":"Yara Gamal","text":"@khaled.hamdy@handsofhopeny.com"}]},{"monthIdx":10,"year":2025,"label":"Nov 2025","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":128,"converted":89,"rate":0.7,"cac":67},"zocSponsored":{"name":"ZocDoc Sponsored","total":207,"converted":129,"rate":0.623,"cac":227.7},"zocMeta":{"totalRequests":430,"totalConverted":null,"totalRate":null,"newPxConverted":239,"newPxRate":0.666,"spend":37696,"combinedCAC":157.72384937238493},"website":{"name":"Website","total":61,"converted":46,"rate":0.754,"cac":null},"quiz":{"name":"Website Quiz","total":14,"converted":11,"rate":0.786,"cac":null}},"kpis":{"totalBookings":505,"totalConversions":57,"overallCAC":661.3333333333334,"newPxConverted":239,"newPxRate":0.666,"totalSpend":37696,"blendedCAC":132.26666666666668},"locations":null,"comments":[{"ref":"D4","author":"Khaled Hamdy","text":"Can we add the this month CPL &amp; the first two weeks of December ZocDoc only @yara@handsofhopeny.com"},{"ref":"D4","author":"Yara Gamal","text":"CPB $88 to $90"}]},{"monthIdx":11,"year":2025,"label":"Dec 2025","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":74,"converted":59,"rate":0.8,"cac":63},"zocSponsored":{"name":"ZocDoc Sponsored","total":142,"converted":85,"rate":0.6,"cac":279},"zocMeta":{"totalRequests":286,"totalConverted":null,"totalRate":null,"newPxConverted":166,"newPxRate":0.6614,"spend":28321,"combinedCAC":170.60843373493975},"website":{"name":"Website","total":30,"converted":22,"rate":0.733,"cac":null},"quiz":{"name":"Website Quiz","total":7,"converted":6,"rate":0.86,"cac":null}},"kpis":{"totalBookings":323,"totalConversions":28,"overallCAC":1011.4642857142857,"newPxConverted":166,"newPxRate":0.6614,"totalSpend":28321,"blendedCAC":150.64361702127658},"locations":null,"comments":[{"ref":"A1","author":"Yara Gamal","text":"@khaled.hamdy@handsofhopeny.com"}]},{"monthIdx":0,"year":2026,"label":"Jan 2026","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":32,"converted":23,"rate":0.72,"cac":68},"zocSponsored":{"name":"ZocDoc Sponsored","total":13,"converted":11,"rate":0.846,"cac":140},"zocMeta":{"totalRequests":65,"totalConverted":49,"totalRate":0.754,"newPxConverted":36,"newPxRate":0.735,"spend":3245,"combinedCAC":90.13888888888889},"website":{"name":"Website","total":81,"converted":52,"rate":0.642,"cac":null},"quiz":{"name":"Website Quiz","total":19,"converted":15,"rate":0.79,"cac":null},"googleAds":{"name":"Google Ads","total":52,"converted":27,"rate":0.52,"cac":112,"budget":3018}},"kpis":{"totalBookings":217,"totalConversions":143,"overallCAC":43.7972027972028,"newPxConverted":36,"newPxRate":0.735,"totalSpend":6263,"blendedCAC":54.46086956521739},"locations":null,"comments":[]},{"monthIdx":1,"year":2026,"label":"Feb 2026","channels":{"zocOrganic":null,"zocSponsored":null,"zocMeta":{"totalRequests":null,"totalConverted":null,"totalRate":null,"newPxConverted":null,"newPxRate":null,"spend":null,"combinedCAC":96.7},"website":{"name":"Website","total":48,"converted":30,"rate":0.625,"cac":null},"quiz":{"name":"Website Quiz","total":5,"converted":4,"rate":0.8,"cac":null},"googleAds":{"name":"Google Ads","total":39,"converted":28,"rate":0.78,"cac":142,"budget":3978}},"kpis":{"totalBookings":92,"totalConversions":62,"overallCAC":64.16129032258064,"newPxConverted":null,"newPxRate":null,"totalSpend":3978,"blendedCAC":null},"locations":null,"comments":[]},{"monthIdx":2,"year":2026,"label":"Mar 2026","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":167,"converted":132,"rate":0.79,"cac":67},"zocSponsored":{"name":"ZocDoc Sponsored","total":49,"converted":34,"rate":0.694,"cac":184},"zocMeta":{"totalRequests":273,"totalConverted":207,"totalRate":0.76,"newPxConverted":178,"newPxRate":0.76,"spend":13762,"combinedCAC":77.31460674157303},"website":{"name":"Website","total":100,"converted":71,"rate":0.71,"cac":null},"quiz":{"name":"Website Quiz","total":6,"converted":4,"rate":0.667,"cac":null},"googleAds":{"name":"Google Ads","total":39,"converted":21,"rate":0.54,"cac":135,"budget":2850},"inboundCalls":{"name":"Inbound Calls","total":377,"converted":282,"rate":0.75,"cac":null}},"kpis":{"totalBookings":418,"totalConversions":303,"overallCAC":54.82508250825082,"newPxConverted":178,"newPxRate":0.76,"totalSpend":16612,"blendedCAC":61.525925925925925},"locations":[{"name":"Bard Ave - Staten Island","bookings":1,"newConverted":0,"newTotal":1},{"name":"Astoria","bookings":19,"newConverted":15,"newTotal":18},{"name":"Bay ridge","bookings":4,"newConverted":0,"newTotal":1},{"name":"Bedford-Stuyvesant New Location","bookings":30,"newConverted":23,"newTotal":28},{"name":"Atlantic","bookings":19,"newConverted":14,"newTotal":18},{"name":"Crown Heights, Brooklyn","bookings":45,"newConverted":27,"newTotal":39},{"name":"Flatbush","bookings":13,"newConverted":11,"newTotal":12},{"name":"Forest Hills","bookings":8,"newConverted":7,"newTotal":8},{"name":"Manhattan, NY","bookings":16,"newConverted":11,"newTotal":12},{"name":"Morris Park Avenue, Bronx","bookings":30,"newConverted":15,"newTotal":27},{"name":"Mott Haven (BX,NY)","bookings":1,"newConverted":1,"newTotal":1},{"name":"Queens Village","bookings":14,"newConverted":11,"newTotal":13},{"name":"Staten Island","bookings":6,"newConverted":3,"newTotal":4},{"name":"Whitestone","bookings":37,"newConverted":23,"newTotal":27},{"name":"williamsburg","bookings":22,"newConverted":14,"newTotal":18},{"name":"Woodhaven","bookings":7,"newConverted":2,"newTotal":7}],"comments":[{"ref":"A80","author":"Khaled Hamdy","text":"Astoria Eid"},{"ref":"A1","author":"Yara Gamal","text":"@khaled.hamdy@handsofhopeny.com"},{"ref":"I19","author":"Khaled Hamdy","text":"Timeframe? @yara@handsofhopeny.com"},{"ref":"I19","author":"Yara Gamal","text":"march"}]},{"monthIdx":3,"year":2026,"label":"Apr 2026","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":141,"converted":94,"rate":0.667,"cac":69},"zocSponsored":{"name":"ZocDoc Sponsored","total":201,"converted":130,"rate":0.65,"cac":211},"zocMeta":{"totalRequests":434,"totalConverted":296,"totalRate":0.682,"newPxConverted":250,"newPxRate":0.672,"spend":35448,"combinedCAC":141.792},"website":{"name":"Website","total":64,"converted":48,"rate":0.75,"cac":null},"quiz":{"name":"Website Quiz","total":4,"converted":3,"rate":0.75,"cac":null},"googleAds":{"name":"Google Ads","total":60,"converted":46,"rate":0.767,"cac":96.7,"budget":4447},"inboundCalls":{"name":"Inbound Calls","total":2387,"converted":297,"rate":0.644,"cac":null}},"kpis":{"totalBookings":562,"totalConversions":393,"overallCAC":101.51399491094148,"newPxConverted":250,"newPxRate":0.672,"totalSpend":39895,"blendedCAC":115.97383720930233},"locations":[{"name":"Bard Ave - Staten Island","bookings":4,"newConverted":3,"newTotal":4},{"name":"Astoria","bookings":47,"newConverted":22,"newTotal":40},{"name":"Bay ridge","bookings":2,"newConverted":0,"newTotal":2},{"name":"Bedford-Stuyvesant New Location","bookings":41,"newConverted":23,"newTotal":34},{"name":"Atlantic","bookings":24,"newConverted":12,"newTotal":19},{"name":"Crown Heights, Brooklyn","bookings":57,"newConverted":29,"newTotal":47},{"name":"Flatbush","bookings":19,"newConverted":12,"newTotal":18},{"name":"Forest Hills","bookings":15,"newConverted":9,"newTotal":15},{"name":"Manhattan, NY","bookings":26,"newConverted":18,"newTotal":24},{"name":"Morris Park Avenue, Bronx","bookings":38,"newConverted":17,"newTotal":32},{"name":"Mott Haven (BX,NY)","bookings":27,"newConverted":18,"newTotal":26},{"name":"Queens Village","bookings":11,"newConverted":7,"newTotal":8},{"name":"Staten Island","bookings":9,"newConverted":7,"newTotal":9},{"name":"Whitestone","bookings":43,"newConverted":26,"newTotal":30},{"name":"williamsburg","bookings":35,"newConverted":25,"newTotal":31},{"name":"Woodhaven","bookings":37,"newConverted":21,"newTotal":33}],"comments":[{"ref":"D52","author":"Khaled Hamdy","text":"Number of inquires increased"}]},{"monthIdx":4,"year":2026,"label":"May 2026","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":137,"converted":104,"rate":0.76,"cac":62},"zocSponsored":{"name":"ZocDoc Sponsored","total":221,"converted":152,"rate":0.69,"cac":221},"zocMeta":{"totalRequests":480,"totalConverted":346,"totalRate":0.72,"newPxConverted":286,"newPxRate":0.724,"spend":41963,"combinedCAC":146.7237762237762},"website":{"name":"Website","total":71,"converted":52,"rate":0.732,"cac":null},"googleAds":{"name":"Google Ads","total":60,"converted":40,"rate":0.67,"cac":150,"budget":6000},"inboundCalls":{"name":"Inbound Calls","total":null,"converted":361,"rate":0.77,"cac":null}},"kpis":{"totalBookings":611,"totalConversions":438,"overallCAC":109.50456621004567,"newPxConverted":286,"newPxRate":0.724,"totalSpend":47963,"blendedCAC":126.8862433862434},"locations":[{"name":"Bard Ave - Staten Island","bookings":1,"newConverted":0,"newTotal":1},{"name":"Astoria","bookings":42,"newConverted":26,"newTotal":38},{"name":"Bay ridge","bookings":4,"newConverted":4,"newTotal":4},{"name":"Bedford-Stuyvesant New Location","bookings":41,"newConverted":27,"newTotal":33},{"name":"Atlantic","bookings":29,"newConverted":19,"newTotal":29},{"name":"Crown Heights, Brooklyn","bookings":56,"newConverted":29,"newTotal":42},{"name":"Flatbush","bookings":22,"newConverted":13,"newTotal":20},{"name":"Forest Hills","bookings":27,"newConverted":14,"newTotal":22},{"name":"Manhattan, NY","bookings":31,"newConverted":23,"newTotal":26},{"name":"Morris Park Avenue, Bronx","bookings":47,"newConverted":31,"newTotal":36},{"name":"Mott Haven (BX,NY)","bookings":21,"newConverted":14,"newTotal":19},{"name":"Queens Village","bookings":24,"newConverted":13,"newTotal":19},{"name":"Staten Island","bookings":19,"newConverted":12,"newTotal":18},{"name":"Whitestone","bookings":53,"newConverted":26,"newTotal":38},{"name":"williamsburg","bookings":37,"newConverted":22,"newTotal":27},{"name":"Woodhaven","bookings":26,"newConverted":11,"newTotal":23}],"comments":[{"ref":"I5","author":"Khaled Hamdy","text":"Are the new &amp; existing billed here @yara@handsofhopeny.com"},{"ref":"I5","author":"Yara Gamal","text":"yes this is only for the sponsoredÂ requests as they both cost in bids, but the CAC only on the new patients"},{"ref":"C13","author":"Khaled Hamdy","text":"(bids include new &amp; existing) @mohamedebeido@handsofhopeny.com"},{"ref":"L35","author":"Khaled Hamdy","text":"Pls double check the locations she is sponsored at, as the CAC is high, same for Eglal @yara@handsofhopeny.com"}]},{"monthIdx":5,"year":2026,"label":"Jun 2026","channels":{"zocOrganic":{"name":"ZocDoc Organic","total":113,"converted":88,"rate":0.78,"cac":60},"zocSponsored":{"name":"ZocDoc Sponsored","total":271,"converted":178,"rate":0.66,"cac":269},"zocMeta":{"totalRequests":448,"totalConverted":321,"totalRate":0.72,"newPxConverted":283,"newPxRate":0.702,"spend":54694,"combinedCAC":193.26501766784452},"website":{"name":"Website","total":66,"converted":41,"rate":0.62,"cac":null},"googleAds":{"name":"Google Ads","total":35,"converted":17,"rate":0.486,"cac":259.6,"budget":4413},"inboundCalls":{"name":"Inbound Calls","total":2873,"converted":453,"rate":0.712,"cac":null}},"kpis":{"totalBookings":549,"totalConversions":379,"overallCAC":155.9551451187335,"newPxConverted":283,"newPxRate":0.702,"totalSpend":59107,"blendedCAC":173.3343108504399},"locations":null,"comments":[{"ref":"D45","author":"Khaled Hamdy","text":"Inbound numbers increased, overall of the inbound, hence the 10 mins attending to leads"},{"ref":"D4","author":"Khaled Hamdy","text":"90% scheduling rate &amp; 10 mins attending to leads, hire the 4th team member"}]}],"fileName":"Conversions per month (New Px) (3).xlsx","savedAt":"2026-07-16T13:24:57.541Z"};
+/*EMBEDDED-DATA-END*/
+</script>
+
+<script>
+/* ================================================================
+   PARSER (pure functions — no DOM)
+   ================================================================ */
+/*PARSER-START*/
+const MONTH_NAMES = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+const MONTH_ABBR  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function monthFromToken(tok) {
+  const t = tok.toLowerCase();
+  for (let i = 0; i < 12; i++) {
+    if (MONTH_NAMES[i].startsWith(t) || t.startsWith(MONTH_NAMES[i].slice(0,3))) {
+      if (t.length >= 3 && (MONTH_NAMES[i].startsWith(t) || t === MONTH_NAMES[i].slice(0,3) || t === 'sept' && i === 8)) return i;
+    }
+  }
+  return -1;
+}
+
+// A "period tab" is a sheet named exactly "<Month>" or "<Month> <Year>"
+function classifySheetName(name) {
+  const clean = String(name).trim().replace(/\s+/g, ' ');
+  const m = clean.match(/^([A-Za-z]+)( (20\d{2}))?$/);
+  if (m) {
+    const mi = monthFromToken(m[1]);
+    if (mi !== -1) return { type: 'period', monthIdx: mi, year: m[3] ? parseInt(m[3],10) : null };
+  }
+  // Location sheets: contain "per loc" / "per location"
+  if (/per\s*loc/i.test(clean)) {
+    const lm = clean.match(/^([A-Za-z]+)\.?\s*(20\d{2})?/);
+    if (lm) {
+      const mi = monthFromToken(lm[1]);
+      if (mi !== -1) return { type: 'location', monthIdx: mi, year: lm[2] ? parseInt(lm[2],10) : null };
+    }
+  }
+  return { type: 'other' };
+}
+
+// "250 (15 upcoming)" -> 250 ; "67. 5%" -> 67.5 ; 0.72 -> 0.72
+function parseNum(v) {
+  if (typeof v === 'number' && isFinite(v)) return v;
+  if (typeof v !== 'string') return null;
+  const s = v.replace(/,/g, '');
+  const m = s.match(/-?\d+(\.\s*\d+)?/);
+  if (!m) return null;
+  return parseFloat(m[0].replace(/\s+/g, ''));
+}
+
+function isLabelCell(v) { return typeof v === 'string' && /[a-z]{2,}/i.test(v) && v.trim().length > 1; }
+
+/**
+ * Parse one month sheet into ordered channel blocks + a global label->value map.
+ * Channel blocks come from column A; label/value pairs are scanned across every
+ * row so the side "Budget Spent" panel (cols F+) is captured into `global`.
+ */
+function parseMonthSheet(rows) {
+  const channels = []; let cur = null; const global = {};
+  rows.forEach(row => {
+    if (!row) return;
+    const a = row[0];
+    if (isLabelCell(a) && !/grand total/i.test(a)) { cur = { name: a.trim(), entries: [] }; channels.push(cur); }
+    for (let c = 1; c < row.length; c++) {
+      const cell = row[c];
+      if (!isLabelCell(cell)) continue;
+      const label = cell.trim().replace(/:\s*$/, '').replace(/\s+/g, ' ');
+      for (let k = c + 1; k <= Math.min(c + 3, row.length - 1); k++) {
+        const raw = row[k];
+        if (raw == null || String(raw).trim() === '') continue;
+        const n = parseNum(raw);
+        if (n === null) break;            // hit another label -> stop
+        if (c <= 2 && cur) cur.entries.push({ label, value: n });
+        if (!(label in global)) global[label] = n;
+        c = k; break;
+      }
+    }
+  });
+  return { channels, global };
+}
+
+/* --- lookup helpers over ordered entries --- */
+function eFind(entries, res, fromIdx = 0) {
+  for (let i = fromIdx; i < entries.length; i++)
+    for (const re of res) if (re.test(entries[i].label)) return { value: entries[i].value, idx: i };
+  return null;
+}
+function eGet(entries, res) { const r = eFind(entries, res); return r ? r.value : null; }
+function gGet(global, res) {
+  for (const re of res) { const k = Object.keys(global).find(k => re.test(k)); if (k !== undefined) return global[k]; }
+  return null;
+}
+function chan(channels, re) { return channels.find(c => re.test(c.name.trim())); }
+function asRate(v) { return v == null ? null : (v > 1.5 ? v / 100 : v); }
+
+/** Normalize a parsed month sheet into the dashboard data model. */
+function buildMonthModel(parsed) {
+  const { channels, global } = parsed;
+  const zoc = chan(channels, /^zocdoc$/i);
+  const web = chan(channels, /^website$/i);
+  const quiz = chan(channels, /^website quiz/i);
+  const goog = chan(channels, /^google/i);
+  const inb  = chan(channels, /^inbound/i);
+
+  const ch = {};
+  if (zoc) {
+    const e = zoc.entries;
+    const orgAnchor = eFind(e, [/^(total )?organic pt new/i]);
+    const spoAnchor = eFind(e, [/^(total )?sponsor pt new/i]);
+    ch.zocOrganic = orgAnchor ? {
+      name: 'ZocDoc Organic',
+      total: orgAnchor.value,
+      converted: eGet(e, [/converted\s+organic pt new/i]) ?? (eFind(e, [/^converted/i], orgAnchor.idx + 1) || {}).value ?? null,
+      rate: asRate(eGet(e, [/organic pt conversion rate/i])),
+      cac: gGet(global, [/zocdoc (new )?organic \(market ?place\) cac/i, /organic.*market.*cac/i])
+    } : null;
+    ch.zocSponsored = spoAnchor ? {
+      name: 'ZocDoc Sponsored',
+      total: spoAnchor.value,
+      converted: eGet(e, [/converted sponsor pt new/i]) ?? (eFind(e, [/^converted/i], spoAnchor.idx + 1) || {}).value ?? null,
+      rate: asRate(eGet(e, [/sponsor pt conversion rate/i])),
+      cac: gGet(global, [/px sponsored cac/i, /new sponsored cac/i])
+    } : null;
+    const zocSpendTotal = gGet(global, [/^total spent/i]);           // ZocDoc budget panel (organic fees + sponsored bids + fees)
+    const newPx = eGet(e, [/total new px converted/i]);
+    ch.zocMeta = {
+      totalRequests: eGet(e, [/total .*from zocdoc/i, /total pt requests/i, /^total$/i]),
+      totalConverted: eGet(e, [/^total converted/i]),
+      totalRate: asRate(eGet(e, [/total conv\.? rate/i])),
+      newPxConverted: newPx,
+      newPxRate: asRate(eGet(e, [/new px conversion rate/i])),
+      spend: zocSpendTotal,
+      // Combined ZocDoc CAC = (organic spend + sponsored spend) / new px converted
+      combinedCAC: zocSpendTotal && newPx ? zocSpendTotal / newPx : gGet(global, [/cac for both new organic and new/i, /^cac$/i])
+    };
+  }
+  if (web) ch.website = {
+    name: 'Website',
+    total: eGet(web.entries, [/^total/i]),
+    converted: eGet(web.entries, [/^converted/i]),
+    rate: asRate(eGet(web.entries, [/^conversion( rate)?( all)?$/i, /^conv rate/i])),
+    cac: null
+  };
+  if (quiz) ch.quiz = {
+    name: 'Website Quiz',
+    total: eGet(quiz.entries, [/^total/i]),
+    converted: eGet(quiz.entries, [/^converted/i]),
+    rate: asRate(eGet(quiz.entries, [/^conversion/i])),
+    cac: null
+  };
+  if (goog) {
+    const e = goog.entries;
+    const bookings = eGet(e, [/^bookings$/i]) ?? eGet(e, [/total qualified new patients/i]) ?? eGet(e, [/^total$/i]);
+    ch.googleAds = {
+      name: 'Google Ads',
+      total: bookings,
+      converted: eGet(e, [/^converted/i]),
+      rate: asRate(eGet(e, [/^conversion( rate)?/i])),
+      cac: eGet(e, [/^cac/i]),
+      budget: eGet(e, [/^budget/i])
+    };
+  }
+  if (inb) ch.inboundCalls = {
+    name: 'Inbound Calls',
+    total: eGet(inb.entries, [/^total/i]),
+    converted: eGet(inb.entries, [/^converted/i]),
+    rate: asRate(eGet(inb.entries, [/^conversion/i])),
+    cac: null
+  };
+
+  // ---- KPIs ----
+  const sum = arr => arr.reduce((a, v) => a + (v ?? 0), 0);
+  const bookingChans = [ch.zocMeta?.totalRequests, ch.website?.total, ch.googleAds?.total, ch.quiz?.total];
+  const convChans    = [ch.zocMeta?.totalConverted, ch.website?.converted, ch.googleAds?.converted, ch.quiz?.converted];
+  const zocSpend = gGet(global, [/^total spent/i]);
+  const totalSpend = (zocSpend ?? 0) + (ch.googleAds?.budget ?? 0) || null;
+  const totalBookings = bookingChans.some(v => v != null) ? sum(bookingChans) : null;
+  const totalConversions = convChans.some(v => v != null) ? sum(convChans) : null;
+
+  return {
+    channels: ch,
+    kpis: {
+      totalBookings,
+      totalConversions,
+      overallCAC: totalSpend && totalConversions ? totalSpend / totalConversions : null,
+      newPxConverted: ch.zocMeta?.newPxConverted ?? null,
+      newPxRate: ch.zocMeta?.newPxRate ?? null,
+      totalSpend,
+      blendedCAC: totalSpend && ch.zocMeta?.newPxConverted ? totalSpend / ((ch.zocMeta.newPxConverted) + (ch.googleAds?.converted ?? 0) + (ch.website?.converted ?? 0)) : null
+    }
+  };
+}
+
+/** Parse a "per location" sheet -> [{name, bookings, newConverted, newTotal}] */
+function parseLocationSheet(rows) {
+  const out = [];
+  let headerIdx = -1;
+  for (let i = 0; i < rows.length; i++) {
+    if (rows[i] && typeof rows[i][0] === 'string' && /^location$/i.test(rows[i][0].trim())) { headerIdx = i; break; }
+  }
+  if (headerIdx === -1) return out;
+  for (let i = headerIdx + 1; i < rows.length; i++) {
+    const r = rows[i]; if (!r) continue;
+    const a = r[0];
+    if (typeof a === 'string' && /grand total|provider/i.test(a)) break;
+    if (!isLabelCell(a)) { if (out.length && (!r || r.every(c => c == null || c === ''))) continue; else continue; }
+    const name = a.trim().replace(/^[\d+A-Z]*\d+:[A-Z]+\d+\s*/,'').replace(/^\d+\+?\s*/,''); // strip stray formula refs
+    out.push({
+      name,
+      bookings: parseNum(r[1]),
+      newConverted: parseNum(r[5]),
+      newTotal: parseNum(r[7])
+    });
+  }
+  return out;
+}
+
+/** Full workbook -> sorted period list. Prefers explicit-year tabs when present. */
+function buildWorkbookModel(sheetEntries /* [{name, rows}] */) {
+  const classified = sheetEntries.map(s => ({ ...s, cls: classifySheetName(s.name) }));
+  let periods = classified.filter(s => s.cls.type === 'period');
+  const hasYearTabs = periods.some(p => p.cls.year !== null);
+  if (hasYearTabs) periods = periods.filter(p => p.cls.year !== null);
+  else {
+    // fall back to V1-style inference: file order, bump year on wrap, anchor to today
+    let rel = 0, prev = null;
+    periods.forEach(p => { if (prev !== null && p.cls.monthIdx < prev) rel++; p.rel = rel; prev = p.cls.monthIdx; });
+    const now = new Date();
+    const last = periods[periods.length - 1];
+    let base = now.getFullYear() - last.rel;
+    if (new Date(base + last.rel, last.cls.monthIdx, 1) > now) base--;
+    periods.forEach(p => { p.cls.year = base + p.rel; });
+  }
+  const models = periods.map(p => {
+    const parsed = parseMonthSheet(p.rows);
+    return {
+      monthIdx: p.cls.monthIdx, year: p.cls.year,
+      label: MONTH_ABBR[p.cls.monthIdx] + ' ' + p.cls.year,
+      ...buildMonthModel(parsed),
+      locations: null,
+      comments: p.comments || []
+    };
+  });
+  models.sort((a, b) => (a.year - b.year) || (a.monthIdx - b.monthIdx));
+  // de-dupe identical months (keep first)
+  const seen = new Set();
+  const unique = models.filter(m => { const k = m.year + '-' + m.monthIdx; if (seen.has(k)) return false; seen.add(k); return true; });
+
+  // attach location sheets (explicit-year names only, to avoid legacy ambiguity)
+  classified.filter(s => s.cls.type === 'location' && s.cls.year !== null).forEach(s => {
+    const target = unique.find(m => m.monthIdx === s.cls.monthIdx && m.year === s.cls.year);
+    if (target) {
+      const locs = parseLocationSheet(s.rows).filter(l => l.bookings !== null || l.newTotal !== null);
+      if (locs.length) target.locations = locs;
+      if (s.comments && s.comments.length) target.comments = (target.comments || []).concat(s.comments);
+    }
+  });
+  return unique;
+}
+/*PARSER-END*/
+
+/* ================================================================
+   APP (DOM / rendering)
+   ================================================================ */
+let months = [];            // sorted month models
+let sel = -1;               // selected month index
+let cmp = -1;               // comparison month index (-1 = auto previous)
+let chanTab = 'bookings';
+let chart = null;
+
+const $ = id => document.getElementById(id);
+const fmtInt = v => v == null ? '—' : Math.round(v).toLocaleString();
+const fmtMoney = v => v == null ? '—' : '$' + Math.round(v).toLocaleString();
+const fmtPct = v => v == null ? '—' : (v * 100).toFixed(1) + '%';
+
+function cmpIdx() { return cmp >= 0 && cmp !== sel ? cmp : (sel > 0 ? sel - 1 : -1); }
+
+/** Pull cell comments (incl. Excel threaded comments) from a SheetJS worksheet */
+function extractSheetComments(ws) {
+  const out = [];
+  Object.keys(ws).forEach(addr => {
+    if (addr[0] === '!') return;
+    const cs = ws[addr].c;
+    if (!cs || !cs.length) return;
+    cs.forEach(cm => {
+      let t = (cm.t || '').trim();
+      if (!t) return;
+      if (/your version of excel|threaded comment/i.test(t)) {
+        // legacy placeholder wraps real thread text after "Comment:" — try to salvage
+        const m = t.split(/comment:\s*/i)[1];
+        if (!m) return;
+        t = m.trim();
+      }
+      t = t.replace(/^\s*Assigned to .+$/gim, '').trim();
+      if (t) out.push({ ref: addr, author: (cm.a || '').trim(), text: t });
+    });
+  });
+  return out;
+}
+
+function handleFile(file) {
+  $('errorBox').classList.add('hidden');
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+      const entries = wb.SheetNames.map(name => ({
+        name,
+        rows: XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: null }),
+        comments: extractSheetComments(wb.Sheets[name])
+      }));
+      months = buildWorkbookModel(entries);
+      if (!months.length) throw new Error('No month tabs recognized. Expected tabs named like "August 2025" or "May 2026".');
+      lastFileName = file.name;
+      saveData();
+      activateDashboard('✓ ' + file.name + ' — ' + months.length + ' months parsed');
+    } catch (err) {
+      $('errorBox').textContent = 'Parse error: ' + err.message;
+      $('errorBox').classList.remove('hidden');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ---- Persistence: keep the last upload across refreshes ---- */
+const DATA_KEY = 'hoh_dashboard_data_v1';
+let lastFileName = '';
+
+function saveData() {
+  try {
+    localStorage.setItem(DATA_KEY, JSON.stringify({ months, fileName: lastFileName, savedAt: new Date().toISOString() }));
+  } catch (e) { /* storage blocked or full — dashboard still works for this session */ }
+}
+
+function activateDashboard(statusText) {
+  sel = months.length - 1; cmp = -1;
+  $('fileStatus').textContent = statusText;
+  $('fileStatus').classList.remove('hidden');
+  $('dropzone').classList.add('py-4');
+  $('dropzone').classList.remove('p-12');
+  $('dashboard').classList.remove('hidden');
+  $('btnAskAI').disabled = false;
+  $('btnExport').classList.remove('hidden');
+  $('dateRange').textContent = 'Reporting period: ' + months[0].label + ' – ' + months[months.length - 1].label;
+  renderAll();
+}
+
+/** On page load: prefer data baked into the file, else the browser's last upload. */
+function restoreData() {
+  const emb = window.EMBEDDED_DATA;
+  if (emb && Array.isArray(emb.months) && emb.months.length) {
+    months = emb.months;
+    lastFileName = emb.fileName || '';
+    activateDashboard('✓ Published data' + (lastFileName ? ' — ' + lastFileName : '') + ' · ' + months.length + ' months (drop a new workbook to update)');
+    return;
+  }
+  try {
+    const saved = JSON.parse(localStorage.getItem(DATA_KEY));
+    if (saved && Array.isArray(saved.months) && saved.months.length) {
+      months = saved.months;
+      lastFileName = saved.fileName || '';
+      activateDashboard('✓ Restored last upload' + (lastFileName ? ' (' + lastFileName + ')' : '') + ' — ' + months.length + ' months');
+    }
+  } catch (e) { /* corrupt saved data — start fresh */ }
+}
+
+function renderAll() { renderTimeline(); renderKPIs(); renderSources(); renderComments(); renderChannels(); renderLocations(); renderChart(); }
+function renderPeriod() { renderTimeline(); renderKPIs(); renderSources(); renderComments(); renderChannels(); renderLocations(); highlightChart(); }
+
+/* ---- Analyst Comments ---- */
+function renderComments() {
+  const all = $('cmtAll').checked;
+  const m = months[sel];
+  $('cmtMonth').textContent = all ? '· all months' : '· ' + m.label;
+  const list = $('commentList'); list.innerHTML = '';
+  const items = all
+    ? months.flatMap(mm => (mm.comments || []).map(c => ({ ...c, month: mm.label })))
+    : (m.comments || []).map(c => ({ ...c, month: m.label }));
+  if (!items.length) {
+    list.innerHTML = '<p class="text-sm text-slate-400 py-3">No workbook comments found for ' + (all ? 'any month' : m.label) + '.</p>';
+    return;
+  }
+  items.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'flex gap-3 items-start bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-2.5 fade-in';
+    div.innerHTML =
+      '<svg class="h-4 w-4 text-teal-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>' +
+      '<div class="min-w-0">' +
+        '<p class="text-sm text-slate-700 leading-snug">' + c.text.replace(/</g, '&lt;').replace(/\n/g, '<br>') + '</p>' +
+        '<p class="text-[10px] text-slate-400 mt-1">' + c.month + ' · cell ' + c.ref + (c.author ? ' · ' + c.author.replace(/</g, '&lt;') : '') + '</p>' +
+      '</div>';
+    list.appendChild(div);
+  });
+}
+
+/* ---- Source Performance Breakdown ---- */
+function sourceRows(m) {
+  const c = m.channels;
+  const rows = [];
+  if (c.zocMeta) rows.push({
+    name: 'ZocDoc',
+    bookings: c.zocMeta.totalRequests,
+    newConverted: c.zocMeta.newPxConverted ?? c.zocMeta.totalConverted,
+    rate: c.zocMeta.newPxRate ?? c.zocMeta.totalRate,
+    cac: c.zocMeta.combinedCAC ?? null,
+    subs: [c.zocOrganic && { name: 'Organic', ...c.zocOrganic }, c.zocSponsored && { name: 'Sponsored', ...c.zocSponsored }].filter(Boolean)
+  });
+  if (c.website) rows.push({ name: 'Website', bookings: c.website.total, newConverted: c.website.converted, rate: c.website.rate, cac: c.website.cac ?? null, noSpend: true });
+  if (c.googleAds) rows.push({ name: 'Google Ads', bookings: c.googleAds.total, newConverted: c.googleAds.converted, rate: c.googleAds.rate, cac: c.googleAds.cac ?? (c.googleAds.budget && c.googleAds.converted ? c.googleAds.budget / c.googleAds.converted : null) });
+  if (c.inboundCalls) rows.push({ name: 'Inbound Calls', bookings: c.inboundCalls.total, newConverted: c.inboundCalls.converted, rate: c.inboundCalls.rate, cac: null, noSpend: true });
+  return rows;
+}
+
+const SRC_COLORS = { 'ZocDoc': 'bg-teal-600', 'Website': 'bg-sky-500', 'Google Ads': 'bg-amber-500', 'Inbound Calls': 'bg-violet-500' };
+
+function renderSources() {
+  const m = months[sel];
+  $('srcMonth').textContent = '· ' + m.label;
+  const list = $('sourceList'); list.innerHTML = '';
+  const rows = sourceRows(m);
+  if (!rows.length) { list.innerHTML = '<p class="text-sm text-slate-400 py-4">No source data found for this month.</p>'; return; }
+  const totalBookings = rows.reduce((a, r) => a + (r.bookings ?? 0), 0) || 1;
+
+  rows.forEach(r => {
+    const share = (r.bookings ?? 0) / totalBookings * 100;
+    const derivedRate = r.rate ?? (r.bookings ? (r.newConverted ?? 0) / r.bookings : null);
+    const div = document.createElement('div');
+    div.className = 'py-3.5 first:pt-0 last:pb-0 fade-in';
+    let subHtml = '';
+    if (r.subs && r.subs.length) {
+      subHtml = '<div class="mt-2.5 ml-4 pl-3 border-l-2 border-slate-100 space-y-1.5">' + r.subs.map(s =>
+        '<div class="flex items-center gap-3 text-xs">' +
+          '<span class="w-20 shrink-0 font-medium text-slate-500">' + s.name + '</span>' +
+          '<span class="text-slate-400">Bookings <b class="text-slate-700">' + fmtInt(s.total) + '</b></span>' +
+          '<span class="text-slate-400">New Px <b class="text-slate-700">' + fmtInt(s.converted) + '</b></span>' +
+          '<span class="text-slate-400">Rate <b class="text-slate-700">' + fmtPct(s.rate) + '</b></span>' +
+          (s.cac != null ? '<span class="text-slate-400">CAC <b class="text-slate-700">' + fmtMoney(s.cac) + '</b></span>' : '') +
+        '</div>').join('') + '</div>';
+    }
+    div.innerHTML =
+      '<div class="grid grid-cols-2 md:grid-cols-12 gap-x-4 gap-y-1 items-center">' +
+        '<div class="md:col-span-3 flex items-center gap-2">' +
+          '<span class="h-2.5 w-2.5 rounded-full ' + (SRC_COLORS[r.name] || 'bg-slate-400') + '" aria-hidden="true"></span>' +
+          '<span class="text-sm font-semibold text-slate-800">' + r.name + '</span>' +
+        '</div>' +
+        '<div class="md:col-span-3">' +
+          '<div class="flex items-baseline justify-between mb-1">' +
+            '<span class="text-[11px] text-slate-400 uppercase tracking-wide">Bookings</span>' +
+            '<span class="text-sm font-bold text-slate-900">' + fmtInt(r.bookings) + ' <span class="text-[11px] font-medium text-slate-400">(' + share.toFixed(1) + '%)</span></span>' +
+          '</div>' +
+          '<div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full rounded-full ' + (SRC_COLORS[r.name] || 'bg-slate-400') + '" style="width:' + Math.max(2, share) + '%"></div></div>' +
+        '</div>' +
+        '<div class="md:col-span-2 md:text-center">' +
+          '<p class="text-[11px] text-slate-400 uppercase tracking-wide">New Px Converted</p>' +
+          '<p class="text-sm font-bold text-slate-900">' + fmtInt(r.newConverted) + '</p>' +
+        '</div>' +
+        '<div class="md:col-span-2 md:text-center">' +
+          '<p class="text-[11px] text-slate-400 uppercase tracking-wide">Conversion Rate</p>' +
+          '<p class="text-sm font-bold ' + (derivedRate != null && derivedRate >= 0.7 ? 'text-emerald-600' : 'text-slate-900') + '">' + fmtPct(derivedRate) + '</p>' +
+        '</div>' +
+        '<div class="md:col-span-2 md:text-right">' +
+          '<p class="text-[11px] text-slate-400 uppercase tracking-wide">CAC</p>' +
+          '<p class="text-sm font-bold ' + (r.cac != null ? 'text-slate-900' : 'text-slate-400') + '">' + (r.cac != null ? fmtMoney(r.cac) : (r.noSpend ? '$0' : 'N/A')) + (r.noSpend && r.cac == null ? ' <span class="text-[10px] font-medium text-slate-400">no paid spend</span>' : '') + '</p>' +
+        '</div>' +
+      '</div>' + subHtml;
+    list.appendChild(div);
+  });
+}
+
+/* ---- Timeline ---- */
+function renderTimeline() {
+  const nav = $('timeline'); nav.innerHTML = '';
+  months.forEach((m, i) => {
+    const b = document.createElement('button');
+    b.textContent = m.label;
+    b.className = 'px-3.5 py-1.5 rounded-full text-sm font-medium border border-slate-300 bg-white text-slate-600 hover:border-teal-500 hover:text-teal-700 transition-colors' + (i === sel ? ' pill-active' : '');
+    b.setAttribute('aria-pressed', String(i === sel));
+    b.onclick = () => { sel = i; renderPeriod(); };
+    nav.appendChild(b);
+  });
+  const ci = cmpIdx();
+  $('compareLabel').textContent = ci >= 0 ? 'vs ' + months[ci].label : 'Compare';
+}
+
+/* ---- KPI cards ---- */
+const KPI_DEFS = [
+  { key: 'totalBookings',  label: 'Total Bookings',        fmt: fmtInt,   icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', sub: 'ZocDoc + Website + Google' },
+  { key: 'totalConversions', label: 'Total Conversions',   fmt: fmtInt,   icon: 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z', sub: 'all channels, new + existing' },
+  { key: 'overallCAC',     label: 'Overall CAC',           fmt: fmtMoney, icon: 'M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33', sub: 'spend ÷ total conversions' },
+  { key: 'newPxConverted', label: 'New Patients Converted', fmt: fmtInt,  icon: 'M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z', sub: 'ZocDoc new px' },
+  { key: 'newPxRate',      label: 'New Px Conversion Rate', fmt: fmtPct,  icon: 'M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941', sub: 'ZocDoc new requests' },
+  { key: 'totalSpend',     label: 'Total Spend',           fmt: fmtMoney, icon: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z', sub: 'ZocDoc + Google Ads' },
+  { key: 'blendedCAC',     label: 'Blended CAC',           fmt: fmtMoney, icon: 'M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z', sub: 'spend ÷ new px converted' }
+];
+
+function renderKPIs() {
+  const m = months[sel], ci = cmpIdx(), prev = ci >= 0 ? months[ci] : null;
+  const row = $('kpiRow'); row.innerHTML = '';
+  KPI_DEFS.forEach(def => {
+    const v = m.kpis[def.key];
+    const pv = prev ? prev.kpis[def.key] : null;
+    let deltaHtml = '<span class="text-slate-300">—</span>';
+    if (v != null && pv != null && pv !== 0) {
+      const d = (v - pv) / Math.abs(pv) * 100;
+      const lowerIsBetter = /CAC|Spend/i.test(def.label);
+      const good = lowerIsBetter ? d < 0 : d > 0;
+      deltaHtml = '<span class="' + (good ? 'delta-up' : 'delta-down') + ' font-semibold">' + (d > 0 ? '▲' : '▼') + ' ' + Math.abs(d).toFixed(1) + '%</span> <span class="text-slate-400">vs ' + prev.label + '</span>';
+    } else if (prev) {
+      deltaHtml = '<span class="text-slate-400">vs ' + prev.label + '</span>';
+    }
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm p-4 fade-in';
+    card.innerHTML =
+      '<div class="flex items-center justify-between mb-2">' +
+        '<p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">' + def.label + '</p>' +
+        '<svg class="h-4 w-4 text-teal-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="' + def.icon + '"/></svg>' +
+      '</div>' +
+      '<p class="text-2xl font-bold text-slate-900 leading-none">' + def.fmt(v) + '</p>' +
+      '<p class="text-[11px] mt-2">' + deltaHtml + '</p>' +
+      '<p class="text-[10px] text-slate-400 mt-0.5">' + def.sub + '</p>';
+    row.appendChild(card);
+  });
+}
+
+/* ---- Channel breakdown ---- */
+function channelRows(m) {
+  const c = m.channels;
+  return [c.zocOrganic, c.zocSponsored, c.website, c.quiz, c.googleAds, c.inboundCalls].filter(Boolean);
+}
+
+function renderChannels() {
+  const m = months[sel];
+  $('chanMonth').textContent = '· ' + m.label;
+  const list = $('channelList'); list.innerHTML = '';
+  const rows = channelRows(m);
+  if (!rows.length) { list.innerHTML = '<p class="text-sm text-slate-400">No channel data found for this month.</p>'; return; }
+
+  const metric = { bookings: r => r.total, rate: r => r.rate, cac: r => r.cac }[chanTab];
+  const fmt    = { bookings: fmtInt, rate: fmtPct, cac: fmtMoney }[chanTab];
+  const max = Math.max(...rows.map(r => metric(r) ?? 0), 0.0001);
+
+  rows.forEach(r => {
+    const v = metric(r);
+    const pct = v == null ? 0 : Math.max(4, v / max * 100);
+    const div = document.createElement('div');
+    div.className = 'fade-in';
+    div.innerHTML =
+      '<div class="flex items-baseline justify-between mb-1">' +
+        '<span class="text-sm font-medium text-slate-700">' + r.name + '</span>' +
+        '<span class="text-sm font-bold text-slate-900">' + fmt(v) + '</span>' +
+      '</div>' +
+      '<div class="h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full rounded-full ' + (chanTab === 'cac' ? 'bg-amber-500' : 'bg-teal-600') + '" style="width:' + pct + '%"></div></div>' +
+      '<div class="flex gap-4 mt-1 text-[11px] text-slate-400">' +
+        '<span>Requests: <b class="text-slate-600">' + fmtInt(r.total) + '</b></span>' +
+        '<span>Converted: <b class="text-slate-600">' + fmtInt(r.converted) + '</b></span>' +
+        '<span>Rate: <b class="text-slate-600">' + fmtPct(r.rate) + '</b></span>' +
+        (r.cac != null ? '<span>CAC: <b class="text-slate-600">' + fmtMoney(r.cac) + '</b></span>' : '') +
+      '</div>';
+    list.appendChild(div);
+  });
+}
+
+/* ---- Locations ---- */
+function renderLocations() {
+  const m = months[sel];
+  $('locMonth').textContent = '· ' + m.label;
+  const grid = $('locationGrid'); grid.innerHTML = '';
+  if (!m.locations) {
+    grid.innerHTML = '<p class="col-span-2 text-sm text-slate-400 py-8 text-center">No per-location sheet in the workbook for ' + m.label + '.<br><span class="text-xs">(Location tabs found for: ' + (months.filter(x => x.locations).map(x => x.label).join(', ') || 'none') + ')</span></p>';
+    return;
+  }
+  const max = Math.max(...m.locations.map(l => l.bookings ?? 0), 1);
+  m.locations.forEach(l => {
+    const card = document.createElement('div');
+    card.className = 'border border-slate-200 rounded-xl p-3 fade-in hover:border-teal-300 transition-colors';
+    card.innerHTML =
+      '<p class="text-xs font-medium text-slate-500 truncate" title="' + l.name.replace(/"/g,'&quot;') + '">' + l.name + '</p>' +
+      '<p class="text-xl font-bold text-slate-900 mt-0.5">' + fmtInt(l.bookings) + '</p>' +
+      '<p class="text-[10px] text-slate-400">bookings' + (l.newConverted != null ? ' · ' + fmtInt(l.newConverted) + ' new converted' : '') + '</p>' +
+      '<div class="h-1 bg-slate-100 rounded-full mt-2 overflow-hidden"><div class="h-full bg-teal-500 rounded-full" style="width:' + Math.max(4, (l.bookings ?? 0) / max * 100) + '%"></div></div>';
+    grid.appendChild(card);
+  });
+}
+
+/* ---- Trend chart ---- */
+function renderChart() {
+  const ctx = $('trendChart').getContext('2d');
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months.map(m => m.label),
+      datasets: [
+        { label: 'Total Bookings', data: months.map(m => m.kpis.totalBookings), borderColor: '#0f766e', backgroundColor: 'rgba(15,118,110,.07)', fill: true, tension: .35, pointRadius: ptRadii(), pointBackgroundColor: '#0f766e' },
+        { label: 'Total Conversions', data: months.map(m => m.kpis.totalConversions), borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,.05)', fill: true, tension: .35, pointRadius: ptRadii(), pointBackgroundColor: '#f59e0b' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true } } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } },
+      onClick: (evt, els) => { if (els.length) { sel = els[0].index; renderPeriod(); } }
+    }
+  });
+}
+function ptRadii() { return months.map((_, i) => i === sel ? 6 : 3); }
+function highlightChart() { if (!chart) return; chart.data.datasets.forEach(d => d.pointRadius = ptRadii()); chart.update(); }
+
+/* ---- Compare menu ---- */
+$('btnCompare').onclick = e => { e.stopPropagation(); const menu = $('compareMenu'); menu.classList.toggle('hidden'); buildCompareMenu(); };
+document.addEventListener('click', () => $('compareMenu').classList.add('hidden'));
+function buildCompareMenu() {
+  const menu = $('compareMenu'); menu.innerHTML = '';
+  const auto = document.createElement('button');
+  auto.textContent = 'Auto (previous month)';
+  auto.className = 'block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ' + (cmp === -1 ? 'font-semibold text-teal-700' : 'text-slate-600');
+  auto.onclick = () => { cmp = -1; renderPeriod(); };
+  menu.appendChild(auto);
+  months.forEach((m, i) => {
+    if (i === sel) return;
+    const b = document.createElement('button');
+    b.textContent = m.label;
+    b.className = 'block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ' + (cmp === i ? 'font-semibold text-teal-700' : 'text-slate-600');
+    b.onclick = () => { cmp = i; renderPeriod(); };
+    menu.appendChild(b);
+  });
+}
+
+/* ---- Channel tabs ---- */
+document.querySelectorAll('.chan-tab').forEach(btn => {
+  btn.onclick = () => {
+    chanTab = btn.dataset.tab;
+    document.querySelectorAll('.chan-tab').forEach(b => b.classList.toggle('tab-active', b === btn));
+    renderChannels();
+  };
+});
+
+/* ================================================================
+   ASK AI — chat drawer, local insights engine, BYOK
+   ================================================================ */
+const AI_CFG_KEY = 'hoh_ai_cfg';
+let chatHistory = []; // [{role, content}] for the LLM
+
+function aiCfg() { try { return JSON.parse(localStorage.getItem(AI_CFG_KEY)) || {}; } catch { return {}; } }
+function saveAiCfg(cfg) { localStorage.setItem(AI_CFG_KEY, JSON.stringify(cfg)); syncAiUI(); }
+
+function syncAiUI() {
+  const cfg = aiCfg();
+  const hasKey = !!cfg.key;
+  const ready = months.length > 0;
+  $('aiInput').disabled = !ready;
+  $('aiSend').disabled = !ready;
+  $('aiInput').placeholder = !ready ? 'Upload a workbook first…' : (hasKey ? 'Ask about your conversion data…' : 'Ask anything — answered locally from your data');
+  $('aiMode').textContent = hasKey
+    ? 'Local insights + live chat via ' + (cfg.provider === 'openai' ? 'OpenAI' : 'Anthropic') + ' (BYOK)'
+    : 'Local mode — chat answered in-browser from parsed data (add key for LLM chat)';
+  if (cfg.provider) $('aiProvider').value = cfg.provider;
+  if (cfg.key) $('aiKey').value = cfg.key;
+}
+
+/* ---- Drawer open/close ---- */
+function openDrawer() {
+  $('aiOverlay').classList.remove('hidden');
+  requestAnimationFrame(() => $('aiDrawer').classList.remove('translate-x-full'));
+  syncAiUI();
+  if (!$('aiMessages').childElementCount) runInsightsEngine();
+}
+function closeDrawer() {
+  $('aiDrawer').classList.add('translate-x-full');
+  setTimeout(() => $('aiOverlay').classList.add('hidden'), 300);
+}
+$('btnAskAI').onclick = openDrawer;
+$('aiClose').onclick = $('aiOverlay').onclick = closeDrawer;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+$('aiSettingsBtn').onclick = () => $('aiSettings').classList.toggle('hidden');
+$('aiKeySave').onclick = () => { saveAiCfg({ provider: $('aiProvider').value, key: $('aiKey').value.trim() }); $('aiSettings').classList.add('hidden'); addMsg('assistant', 'Key saved to this browser only. Chat is now live — ask me anything about the report.'); };
+$('aiKeyClear').onclick = () => { localStorage.removeItem(AI_CFG_KEY); $('aiKey').value = ''; syncAiUI(); };
+
+/* ---- Message rendering ---- */
+function addMsg(role, html, isThinking = false) {
+  const wrap = document.createElement('div');
+  wrap.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start') + ' fade-in';
+  const bubble = document.createElement('div');
+  bubble.className = role === 'user'
+    ? 'max-w-[85%] bg-teal-700 text-white text-sm rounded-2xl rounded-br-md px-4 py-2.5 leading-relaxed'
+    : 'max-w-[92%] bg-slate-100 text-slate-800 text-sm rounded-2xl rounded-bl-md px-4 py-2.5 leading-relaxed space-y-2';
+  bubble.innerHTML = html;
+  if (isThinking) bubble.id = 'aiThinking';
+  wrap.appendChild(bubble);
+  $('aiMessages').appendChild(wrap);
+  $('aiMessages').scrollTop = $('aiMessages').scrollHeight;
+  return bubble;
+}
+
+/* ================================================================
+   LOCAL INSIGHTS ENGINE
+   ================================================================ */
+const KPI_SERIES = [
+  { key: 'totalBookings',   name: 'Total Bookings',   fmt: fmtInt,   lowerIsBetter: false },
+  { key: 'totalConversions',name: 'Total Conversions',fmt: fmtInt,   lowerIsBetter: false },
+  { key: 'newPxConverted',  name: 'New Px Converted', fmt: fmtInt,   lowerIsBetter: false },
+  { key: 'totalSpend',      name: 'Total Spend',      fmt: fmtMoney, lowerIsBetter: true },
+  { key: 'blendedCAC',      name: 'Blended CAC',      fmt: fmtMoney, lowerIsBetter: true }
+];
+
+/** Anomalies: current month vs 3-month rolling average (>15% deviation) */
+function detectAnomalies(idx) {
+  const out = [];
+  KPI_SERIES.forEach(s => {
+    const cur = months[idx]?.kpis[s.key];
+    if (cur == null) return;
+    const window = [];
+    for (let i = idx - 1; i >= Math.max(0, idx - 3); i--) {
+      const v = months[i].kpis[s.key];
+      if (v != null) window.push(v);
+    }
+    if (window.length < 2) return;
+    const avg = window.reduce((a, b) => a + b, 0) / window.length;
+    if (avg === 0) return;
+    const dev = (cur - avg) / Math.abs(avg) * 100;
+    if (Math.abs(dev) > 15) {
+      const good = s.lowerIsBetter ? dev < 0 : dev > 0;
+      out.push({ name: s.name, cur, avg, dev, good, fmt: s.fmt });
+    }
+  });
+  return out;
+}
+
+/** Efficiency: CAC spread + concrete reallocation math */
+function efficiencyAlerts(idx) {
+  const m = months[idx], c = m.channels, out = [];
+  if (c.zocOrganic?.cac != null && c.zocSponsored?.cac != null && c.zocSponsored.cac > c.zocOrganic.cac * 1.5) {
+    const spoSpend = (c.zocSponsored.cac ?? 0) * (c.zocSponsored.converted ?? 0);
+    const shift = spoSpend * 0.10;
+    const extraPx = shift / c.zocOrganic.cac - shift / c.zocSponsored.cac;
+    out.push('ZocDoc Organic CAC is <b>' + fmtMoney(c.zocOrganic.cac) + '</b> vs Sponsored at <b>' + fmtMoney(c.zocSponsored.cac) + '</b> (' + (c.zocSponsored.cac / c.zocOrganic.cac).toFixed(1) + 'x). Reallocating 10% of sponsored spend (~' + fmtMoney(shift) + ') toward organic-rate acquisition could yield <b>~' + Math.round(extraPx) + ' additional new patients</b> at the same budget — if organic supply can absorb it.');
+  }
+  const cacs = sourceRows(m).filter(r => r.cac != null && r.newConverted);
+  if (cacs.length > 1) {
+    const cheap = cacs.reduce((a, b) => b.cac < a.cac ? b : a);
+    const dear = cacs.reduce((a, b) => b.cac > a.cac ? b : a);
+    if (dear.cac > cheap.cac * 1.3 && dear.name !== cheap.name)
+      out.push('Across sources, <b>' + cheap.name + '</b> (' + fmtMoney(cheap.cac) + ' CAC) outperforms <b>' + dear.name + '</b> (' + fmtMoney(dear.cac) + '). Every patient shifted to the cheaper source saves ~' + fmtMoney(dear.cac - cheap.cac) + '.');
+  }
+  return out;
+}
+
+/** Linear trajectory (least squares) over a KPI series -> next-month projection */
+function projectNext(key) {
+  const pts = months.map((m, i) => ({ x: i, y: m.kpis[key] })).filter(p => p.y != null);
+  if (pts.length < 3) return null;
+  const n = pts.length;
+  const sx = pts.reduce((a, p) => a + p.x, 0), sy = pts.reduce((a, p) => a + p.y, 0);
+  const sxy = pts.reduce((a, p) => a + p.x * p.y, 0), sxx = pts.reduce((a, p) => a + p.x * p.x, 0);
+  const slope = (n * sxy - sx * sy) / (n * sxx - sx * sx);
+  const intercept = (sy - slope * sx) / n;
+  const nextX = months.length;
+  const proj = slope * nextX + intercept;
+  // fit quality (r²) so we can caveat weak trends
+  const meanY = sy / n;
+  const ssTot = pts.reduce((a, p) => a + (p.y - meanY) ** 2, 0);
+  const ssRes = pts.reduce((a, p) => a + (p.y - (slope * p.x + intercept)) ** 2, 0);
+  return { proj: Math.max(0, proj), slope, r2: ssTot ? 1 - ssRes / ssTot : 0 };
+}
+
+function nextMonthLabel() {
+  const last = months[months.length - 1];
+  const mi = (last.monthIdx + 1) % 12;
+  return MONTH_ABBR[mi] + ' ' + (last.monthIdx === 11 ? last.year + 1 : last.year);
+}
+
+function runInsightsEngine() {
+  const idx = sel, m = months[idx];
+  addMsg('assistant', '<b>📊 ' + m.label + ' deep analysis</b> <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-1.5 py-0.5">computed locally</span>');
+
+  // 1. Snapshot
+  addMsg('assistant', fmtInt(m.kpis.totalBookings) + ' bookings → ' + fmtInt(m.kpis.totalConversions) + ' conversions' +
+    (m.kpis.newPxConverted != null ? ' · ' + fmtInt(m.kpis.newPxConverted) + ' new patients (' + fmtPct(m.kpis.newPxRate) + ')' : '') +
+    (m.kpis.totalSpend != null ? ' · ' + fmtMoney(m.kpis.totalSpend) + ' spend · ' + fmtMoney(m.kpis.blendedCAC) + ' blended CAC' : ''));
+
+  // 2. Anomaly detection
+  const anomalies = detectAnomalies(idx);
+  if (anomalies.length) {
+    addMsg('assistant', '<b>⚠️ Anomalies vs 3-month rolling average (&gt;15%):</b><br>' + anomalies.map(a =>
+      '<span class="' + (a.good ? 'text-emerald-700' : 'text-red-600') + ' font-semibold">' + (a.dev > 0 ? '▲' : '▼') + ' ' + Math.abs(a.dev).toFixed(0) + '%</span> ' +
+      a.name + ': ' + a.fmt(a.cur) + ' vs ' + a.fmt(a.avg) + ' avg').join('<br>'));
+  } else {
+    addMsg('assistant', '<b>✓ Stability check:</b> all core metrics are within 15% of their 3-month rolling averages — no anomalies this period.');
+  }
+
+  // 3. Efficiency alerts
+  efficiencyAlerts(idx).forEach(a => addMsg('assistant', '<b>💰 Efficiency:</b> ' + a));
+
+  // 4. Trend projection
+  const pb = projectNext('totalBookings');
+  if (pb) {
+    const conf = pb.r2 > 0.6 ? 'a fairly consistent trend' : pb.r2 > 0.3 ? 'a noisy trend — treat as directional' : 'high month-to-month variance — low confidence';
+    addMsg('assistant', '<b>📈 Projection:</b> linear trajectory across ' + months.length + ' months puts <b>' + nextMonthLabel() + '</b> Total Bookings at <b>~' + fmtInt(pb.proj) + '</b> (' + (pb.slope >= 0 ? '+' : '') + fmtInt(pb.slope) + '/month, ' + conf + ', r²=' + pb.r2.toFixed(2) + ').');
+    const pc = projectNext('totalConversions');
+    if (pc) addMsg('assistant', 'Same method projects <b>~' + fmtInt(pc.proj) + ' conversions</b> next month.');
+  }
+
+  // 5. Locations
+  if (m.locations) {
+    const top = [...m.locations].sort((a, b) => (b.bookings ?? 0) - (a.bookings ?? 0)).slice(0, 3);
+    addMsg('assistant', '<b>📍 Top locations:</b> ' + top.map(l => l.name + ' (' + fmtInt(l.bookings) + ')').join(', ') + '.');
+  }
+
+  if (!aiCfg().key) addMsg('assistant', '<span class="text-slate-500 text-xs">Type a question below — answered locally from your data (bookings, CAC, channels, locations, comments, comparisons). Add an API key via 🔑 for free-form LLM chat.</span>');
+}
+
+/* ================================================================
+   BYOK CHAT — sends prompt + minimized aggregate payload
+   ================================================================ */
+/** Minimal, PHI-free JSON payload of the current month + trend context */
+function buildAiPayload() {
+  const m = months[sel];
+  const slim = mm => ({
+    month: mm.label,
+    kpis: Object.fromEntries(Object.entries(mm.kpis).map(([k, v]) => [k, v == null ? null : +v.toFixed(2)])),
+    sources: sourceRows(mm).map(r => ({ name: r.name, bookings: r.bookings, newPx: r.newConverted, rate: r.rate != null ? +(r.rate).toFixed(3) : null, cac: r.cac != null ? +r.cac.toFixed(0) : null }))
+  });
+  return {
+    selectedMonth: slim(m),
+    trend: months.map(mm => ({ month: mm.label, bookings: mm.kpis.totalBookings, conversions: mm.kpis.totalConversions, blendedCAC: mm.kpis.blendedCAC != null ? +mm.kpis.blendedCAC.toFixed(0) : null })),
+    topLocations: m.locations ? [...m.locations].sort((a, b) => (b.bookings ?? 0) - (a.bookings ?? 0)).slice(0, 5).map(l => ({ name: l.name, bookings: l.bookings })) : null
+  };
+}
+
+const AI_SYSTEM_PROMPT = 'You are a healthcare marketing analyst for Hands of Hope Physical Therapy, a hands-on, one-on-one PT clinic group in NYC. You are given aggregate, de-identified monthly conversion data (bookings, conversions, CAC by channel: ZocDoc Organic/Sponsored, Website, Google Ads, Inbound Calls). Answer concisely with specific numbers. Never invent data not in the payload. Frame recommendations as Quick Wins vs Strategic Plays where useful. Never guarantee outcomes.';
+
+async function sendToLLM(userPrompt) {
+  const cfg = aiCfg();
+  const payload = buildAiPayload();
+  const contextMsg = 'DASHBOARD DATA (aggregate, de-identified):\n' + JSON.stringify(payload);
+  chatHistory.push({ role: 'user', content: userPrompt });
+  const msgs = [
+    { role: 'user', content: contextMsg },
+    { role: 'assistant', content: 'Understood — I have the aggregate dashboard data. What would you like to know?' },
+    ...chatHistory.slice(-10)
+  ];
+
+  let text;
+  if (cfg.provider === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'system', content: AI_SYSTEM_PROMPT }, ...msgs], max_tokens: 700 })
+    });
+    if (!res.ok) throw new Error('OpenAI ' + res.status + ': ' + (await res.text()).slice(0, 200));
+    text = (await res.json()).choices[0].message.content;
+  } else {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': cfg.key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', system: AI_SYSTEM_PROMPT, messages: msgs, max_tokens: 700 })
+    });
+    if (!res.ok) throw new Error('Anthropic ' + res.status + ': ' + (await res.text()).slice(0, 200));
+    text = (await res.json()).content[0].text;
+  }
+  chatHistory.push({ role: 'assistant', content: text });
+  return text;
+}
+
+/* ================================================================
+   LOCAL Q&A (no key required) — keyword intents over parsed data
+   ================================================================ */
+function monthsInQuestion(ql) {
+  const found = [];
+  months.forEach(m => {
+    const full = MONTH_NAMES[m.monthIdx], abbr = MONTH_ABBR[m.monthIdx].toLowerCase();
+    const re = new RegExp('\\b(' + full + '|' + abbr + ')\\b(\\s*' + m.year + ')?', 'i');
+    const strict = new RegExp('\\b(' + full + '|' + abbr + ')\\s*' + m.year + '\\b', 'i');
+    if (strict.test(ql)) found.push({ m, exact: true });
+    else if (re.test(ql)) found.push({ m, exact: false });
+  });
+  // prefer exact "may 2026" matches; for bare month names take the latest occurrence
+  const exact = found.filter(f => f.exact).map(f => f.m);
+  if (exact.length) return exact;
+  const byMonth = {};
+  found.forEach(f => { byMonth[f.m.monthIdx] = f.m; });
+  return Object.values(byMonth);
+}
+
+function localAnswer(q) {
+  const ql = q.toLowerCase();
+  const picked = monthsInQuestion(ql);
+  const m = picked[0] || months[sel];
+  const idx = months.indexOf(m);
+  const B = s => '<b>' + s + '</b>';
+
+  // two months mentioned -> comparison
+  if (picked.length >= 2) {
+    const a = picked[0], b = picked[1];
+    const d = (x, y) => x != null && y != null && y !== 0 ? ((x - y) / Math.abs(y) * 100).toFixed(1) + '%' : '—';
+    return B(a.label + ' vs ' + b.label) + '<br>' +
+      'Bookings: ' + fmtInt(a.kpis.totalBookings) + ' vs ' + fmtInt(b.kpis.totalBookings) + ' (' + d(a.kpis.totalBookings, b.kpis.totalBookings) + ')<br>' +
+      'Conversions: ' + fmtInt(a.kpis.totalConversions) + ' vs ' + fmtInt(b.kpis.totalConversions) + ' (' + d(a.kpis.totalConversions, b.kpis.totalConversions) + ')<br>' +
+      'New Px: ' + fmtInt(a.kpis.newPxConverted) + ' vs ' + fmtInt(b.kpis.newPxConverted) + '<br>' +
+      'Spend: ' + fmtMoney(a.kpis.totalSpend) + ' vs ' + fmtMoney(b.kpis.totalSpend) + '<br>' +
+      'Blended CAC: ' + fmtMoney(a.kpis.blendedCAC) + ' vs ' + fmtMoney(b.kpis.blendedCAC);
+  }
+  if (/cac|cost per|acquisition cost|efficien/.test(ql)) {
+    const rows = sourceRows(m).filter(r => r.cac != null);
+    return B(m.label + ' CAC by source') + '<br>' +
+      (rows.length ? rows.map(r => r.name + ': ' + fmtMoney(r.cac)).join('<br>') : 'No CAC data.') +
+      '<br>Blended CAC: ' + fmtMoney(m.kpis.blendedCAC) + ' · Overall: ' + fmtMoney(m.kpis.overallCAC) +
+      (efficiencyAlerts(idx)[0] ? '<br><br>' + efficiencyAlerts(idx)[0] : '');
+  }
+  if (/spend|budget|cost\b/.test(ql))
+    return B(m.label + ' spend') + ': ' + fmtMoney(m.kpis.totalSpend) + ' total (ZocDoc + Google Ads). Blended CAC ' + fmtMoney(m.kpis.blendedCAC) + '.';
+  if (/best|worst|top channel|which (channel|source)/.test(ql)) {
+    const rows = sourceRows(m).filter(r => r.rate != null);
+    if (!rows.length) return 'No channel rates for ' + m.label + '.';
+    const best = rows.reduce((a, b) => b.rate > a.rate ? b : a), worst = rows.reduce((a, b) => b.rate < a.rate ? b : a);
+    return B(m.label) + ': best converter ' + B(best.name) + ' (' + fmtPct(best.rate) + '), weakest ' + B(worst.name) + ' (' + fmtPct(worst.rate) + ').';
+  }
+  if (/project|forecast|next month|predict|trend/.test(ql)) {
+    const pb = projectNext('totalBookings'), pc = projectNext('totalConversions');
+    if (!pb) return 'Not enough months for projection.';
+    return B('Projection for ' + nextMonthLabel()) + ': ~' + fmtInt(pb.proj) + ' bookings' + (pc ? ', ~' + fmtInt(pc.proj) + ' conversions' : '') + ' (linear fit, r²=' + pb.r2.toFixed(2) + (pb.r2 < 0.3 ? ' — low confidence, high variance' : '') + ').';
+  }
+  if (/location|clinic|astoria|bay ridge|whitestone|bronx|brooklyn|manhattan|staten/.test(ql)) {
+    if (!m.locations) return 'No per-location sheet for ' + m.label + '. Location tabs exist for: ' + (months.filter(x => x.locations).map(x => x.label).join(', ') || 'none') + '.';
+    const named = m.locations.find(l => ql.includes(l.name.toLowerCase().split(/[ ,]/)[0]));
+    if (named) return B(named.name + ' — ' + m.label) + ': ' + fmtInt(named.bookings) + ' bookings' + (named.newConverted != null ? ', ' + fmtInt(named.newConverted) + ' new converted' : '') + '.';
+    const top = [...m.locations].sort((a, b) => (b.bookings ?? 0) - (a.bookings ?? 0)).slice(0, 5);
+    return B(m.label + ' top locations') + '<br>' + top.map(l => l.name + ': ' + fmtInt(l.bookings)).join('<br>');
+  }
+  if (/comment|note/.test(ql)) {
+    const cs = m.comments || [];
+    return cs.length ? B(m.label + ' workbook comments') + '<br>' + cs.map(c => '“' + c.text.replace(/</g, '&lt;') + '” <span class="text-slate-400">(' + c.ref + ')</span>').join('<br>') : 'No comments in workbook for ' + m.label + '.';
+  }
+  if (/anomal|unusual|spike|drop|outlier/.test(ql)) {
+    const an = detectAnomalies(idx);
+    return an.length ? B(m.label + ' anomalies vs 3-mo avg') + '<br>' + an.map(a => a.name + ': ' + (a.dev > 0 ? '+' : '') + a.dev.toFixed(0) + '% (' + a.fmt(a.cur) + ' vs ' + a.fmt(a.avg) + ')').join('<br>') : 'No anomalies >15% for ' + m.label + '.';
+  }
+  if (/zocdoc|organic|sponsor/.test(ql)) {
+    const o = m.channels.zocOrganic, s = m.channels.zocSponsored;
+    return B(m.label + ' ZocDoc') + ': ' + fmtInt(m.channels.zocMeta?.totalRequests) + ' requests, ' + fmtInt(m.kpis.newPxConverted) + ' new px (' + fmtPct(m.kpis.newPxRate) + ').' +
+      (o ? '<br>Organic: ' + fmtInt(o.total) + ' new, ' + fmtInt(o.converted) + ' converted (' + fmtPct(o.rate) + '), CAC ' + fmtMoney(o.cac) : '') +
+      (s ? '<br>Sponsored: ' + fmtInt(s.total) + ' new, ' + fmtInt(s.converted) + ' converted (' + fmtPct(s.rate) + '), CAC ' + fmtMoney(s.cac) : '');
+  }
+  if (/book|request|conver|rate|how (many|much)|summary|overview|snapshot/.test(ql) || picked.length)
+    return B(m.label + ' summary') + ': ' + fmtInt(m.kpis.totalBookings) + ' bookings, ' + fmtInt(m.kpis.totalConversions) + ' conversions, ' + fmtInt(m.kpis.newPxConverted) + ' new patients (' + fmtPct(m.kpis.newPxRate) + '), spend ' + fmtMoney(m.kpis.totalSpend) + ', blended CAC ' + fmtMoney(m.kpis.blendedCAC) + '.';
+  return 'I can answer locally about: ' + B('bookings, conversions, CAC, spend, best/worst channel, ZocDoc organic vs sponsored, locations, comments, anomalies, projections') + ' — or compare two months (“May 2026 vs April 2026”). Add an API key (🔑) for free-form LLM chat.';
+}
+
+$('aiForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const q = $('aiInput').value.trim();
+  if (!q) return;
+  $('aiInput').value = '';
+  addMsg('user', q.replace(/</g, '&lt;'));
+  if (!aiCfg().key) {
+    addMsg('assistant', localAnswer(q) + '<br><span class="text-[10px] text-slate-400">local mode — computed in-browser</span>');
+    return;
+  }
+  const thinking = addMsg('assistant', '<span class="inline-flex gap-1 items-center text-slate-400"><span class="animate-pulse">●</span><span class="animate-pulse" style="animation-delay:.15s">●</span><span class="animate-pulse" style="animation-delay:.3s">●</span></span>', true);
+  try {
+    const answer = await sendToLLM(q);
+    thinking.innerHTML = answer
+      .replace(/</g, '&lt;')
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/\n/g, '<br>');
+  } catch (err) {
+    thinking.innerHTML = '<span class="text-red-600">Request failed: ' + String(err.message).replace(/</g, '&lt;') + '</span><br><span class="text-xs text-slate-400">Check your key in settings (🔑) — falling back to local mode:</span><br><br>' + localAnswer(q);
+  }
+});
+$('cmtAll').onchange = () => renderComments();
+
+/* ---- Upload wiring ---- */
+const dz = $('dropzone'), fi = $('fileInput');
+$('btnUpload').onclick = () => fi.click();
+dz.addEventListener('click', () => fi.click());
+dz.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
+fi.addEventListener('change', () => { if (fi.files.length) handleFile(fi.files[0]); });
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dz-hover'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('dz-hover'); }));
+dz.addEventListener('drop', e => { if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+
+/* ---- Export: download a copy of this page with the current data baked in ---- */
+$('btnExport').onclick = async () => {
+  if (!months.length) return;
+  // marker strings built by concatenation so this code never matches its own markers
+  const MARK_S = '/*EMBEDDED-DATA' + '-START*/';
+  const MARK_E = '/*EMBEDDED-DATA' + '-END*/';
+  try {
+    const res = await fetch(location.href.split('#')[0].split('?')[0]);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    let html = await res.text();
+    const s = html.indexOf(MARK_S), en = html.indexOf(MARK_E);
+    if (s === -1 || en === -1) throw new Error('embed markers not found in page source');
+    const payload = ('window.EMBEDDED_DATA = ' + JSON.stringify({ months, fileName: lastFileName, savedAt: new Date().toISOString() }) + ';')
+      .replace(/<\//g, '<\\/'); // escape closing tags inside comment text so they can't break the page
+    html = html.slice(0, s + MARK_S.length) + '\n' + payload + '\n' + html.slice(en);
+    const blob = new Blob([html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'index.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch (err) {
+    alert('Could not build the publishable copy: ' + err.message + '\n(This works from the deployed site, not from a file opened directly.)');
+  }
+};
+
+restoreData();
+</script>
+</body>
+</html>
